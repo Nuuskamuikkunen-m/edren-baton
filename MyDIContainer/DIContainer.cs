@@ -21,8 +21,16 @@ namespace MyDIContainer
         {
             dependencies.Add(new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceImplementation.Singleton));
         }
-        public T Get<T>() => (T)Get(typeof(T));
+
         public object Get(Type serviceType)
+        {
+            List<Type> listik = new List<Type>();
+
+            return Get(serviceType, listik);
+        }
+        //public T Get<T>() => (T)Get(typeof(T));
+
+        public object Get(Type serviceType, List<Type> parlist)
         {
             var descriptor = dependencies.SingleOrDefault(x => x.ServiceType == serviceType);
             if (descriptor == null)
@@ -33,13 +41,30 @@ namespace MyDIContainer
             {
                 return descriptor.Implementation;
             }
+
+            
+
             var actualType = descriptor.ImplementationType;
             var constructor = actualType.GetConstructors().First();
-            if (constructor.GetParameters().Any(x => IsItCycled(serviceType, x.ParameterType)))
+            List<object> sobakaobaka = new List<object>();
+
+            foreach (var parameter in constructor.GetParameters())
             {
-                throw new Exception("цiкл");
+                if (parlist.Contains(serviceType))
+                {
+                    throw new Exception("цiкл");
+                }
+                parlist.Add(serviceType);
+
+                var newParameter = Get(parameter.ParameterType, parlist);
+
+                parlist.Remove(serviceType);
+
+                sobakaobaka.Add(newParameter);
             }
-            var parameters = constructor.GetParameters().Select(x => Get(x.ParameterType)).ToArray();
+
+
+            var parameters = sobakaobaka.ToArray();
             var implementation = Activator.CreateInstance(actualType, parameters);
             if (descriptor.LifeTime == ServiceImplementation.Singleton)
             {
@@ -47,12 +72,42 @@ namespace MyDIContainer
             }
             return implementation;
         }
-        public bool IsItCycled(Type serviceType, Type parametrType)
+
+            //var parameters = constructorInfo.GetParameters();
+            //List<object?> newParameters = new List<object?>();
+            //foreach (var parameter in parameters)
+            //{
+            //    if (parlist.Contains(serviceType))
+            //    {
+            //        throw new CycleDependencyException($"The type {serviceType.Name} is already referenced. " +
+            //                                           $"Found cycle reference.");
+            //    }
+            //
+            //    parlist.Add(serviceType);
+            //    var newParameter = GetService(parameter.ParameterType, ref parlist);
+            //    newParameters.Add(newParameter);
+            //}
+
+
+        public bool IsItCycled(Type serviceType, ref List<object> parlist) //oioio
+        {
+            if (parlist.Contains(serviceType))
+            {
+                return true;
+            }
+
+            return false;           
+           
+        }
+
+        /*public bool IsItCycled(Type serviceType, Type parametrType, ) //oioio
         {
             var descriptor = dependencies.SingleOrDefault(x => x.ServiceType == parametrType);
             var actualType = descriptor.ImplementationType;
             var constructorType = actualType.GetConstructors().First();
+
             return constructorType.GetParameters().Any(x => Equals(serviceType, x.ParameterType));
         }
+        */
     }
 }
