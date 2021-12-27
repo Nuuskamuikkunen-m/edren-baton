@@ -73,20 +73,7 @@ namespace MyDIContainer
             return implementation;
         }
 
-            //var parameters = constructorInfo.GetParameters();
-            //List<object?> newParameters = new List<object?>();
-            //foreach (var parameter in parameters)
-            //{
-            //    if (parlist.Contains(serviceType))
-            //    {
-            //        throw new CycleDependencyException($"The type {serviceType.Name} is already referenced. " +
-            //                                           $"Found cycle reference.");
-            //    }
-            //
-            //    parlist.Add(serviceType);
-            //    var newParameter = GetService(parameter.ParameterType, ref parlist);
-            //    newParameters.Add(newParameter);
-            //}
+      
 
 
         public bool IsItCycled(Type serviceType, ref List<object> parlist) //oioio
@@ -100,14 +87,6 @@ namespace MyDIContainer
            
         }
 
-        /*public bool IsItCycled(Type serviceType, Type parametrType, ) //oioio
-        {
-            var descriptor = dependencies.SingleOrDefault(x => x.ServiceType == parametrType);
-            var actualType = descriptor.ImplementationType;
-            var constructorType = actualType.GetConstructors().First();
-
-            return constructorType.GetParameters().Any(x => Equals(serviceType, x.ParameterType));
-        }
-        */
+       
     }
 }
