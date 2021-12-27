@@ -73,20 +73,7 @@ namespace MyDIContainer
             return implementation;
         }
 
-      
-
-
-        public bool IsItCycled(Type serviceType, ref List<object> parlist) //oioio
-        {
-            if (parlist.Contains(serviceType))
-            {
-                return true;
-            }
-
-            return false;           
-           
-        }
-
+     
        
     }
 }
